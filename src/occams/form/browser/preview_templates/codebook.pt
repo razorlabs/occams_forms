@@ -1,0 +1,65 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="context/main_template/macros/master">
+
+  <div metal:fill-slot="top_slot"
+       tal:define="dummy python:request.set('disable_border', 1)" />
+
+  <metal:block fill-slot="main">
+
+    <h1 tal:content="string:${context/data/title} - ${context/data/version}"></h1>
+
+    <br/>
+    <h3><a href="" tal:attributes="href context/aq_parent/absolute_url">&lt;&lt; Back to forms</a></h3>
+    <br/>
+
+    <table class="listing">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Codes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tal:fields tal:repeat="field python:sorted(context.data['fields'].values(), key=lambda i: i['order'])">
+          <tr tal:condition="python:field['type'] != 'object'">
+            <td><code tal:content="field/name"></code></td>
+            <td><span tal:content="field/title"></span></td>
+            <td><span tal:content="field/description"></span></td>
+            <td><span tal:content="field/type"></span></td>
+            <td>
+              <div
+                  style="display: table-row;"
+                  tal:repeat="choice python:sorted(field['choices'], key=lambda c: c['order'])">
+                <div style="display: table-cell; padding-right: 1em;"><code tal:content="choice/value"></code></div>
+                <div style="display: table-cell;"><span tal:content="choice/title"></span></div>
+              </div>
+            </td>
+          </tr>
+          <tal:subfields tal:condition="python:field['type'] == 'object'">
+            <tr tal:repeat="subfield python:sorted(field['schema']['fields'].values(), key=lambda i: i['order'])">
+              <td><code tal:content="subfield/name"></code></td>
+              <td><span tal:content="subfield/title"></span></td>
+              <td><span tal:content="subfield/description"></span></td>
+              <td><span tal:content="subfield/type"></span></td>
+              <td>
+                  <div
+                      style="display: table-row;"
+                      tal:repeat="choice python:sorted(subfield['choices'], key=lambda c: c['order'])">
+                    <div style="display: table-cell; padding-right: 1em;"><code tal:content="choice/value"></code></div>
+                    <div style="display: table-cell;"><span tal:content="choice/title"></span></div>
+                  </div>
+              </td>
+            </tr>
+          </tal:subfields>
+        </tal:fields>
+      </tbody>
+    </table>
+
+  </metal:block>
+
+</html>
