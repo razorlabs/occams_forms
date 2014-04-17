@@ -8,6 +8,7 @@
   <adapter factory=".editor.VariableNameValidator" />
   <adapter factory=".editor.ConstraintValidator" />
   <adapter factory=".workflow.StateNameValidator" />
+  <adapter factory=".listing.FormNameValidator" />
 
   <!--            -->
   <!-- ENTRY  -->

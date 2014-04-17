@@ -67,16 +67,15 @@ class IEditableForm(IOccamsFormComponent):
     """
 
     name = zope.schema.ASCIILine(
-        title=_(u'Class Name'),
+        title=_(u'Form Name'),
         description=_(
-            u'Internal variable name, this value cannot be changed once it is '
-            u'created.'
+            u'Internal system name, this value must not contain whitespace, symbols, or begin '
+            u'with digits, and cannot be changed once it is created.'
             ),
-        readonly=True,
         )
 
     title = zope.schema.TextLine(
-        title=_(u'Title'),
+        title=_(u'Form Title'),
         description=_(u'The displayed name of the form.'),
         )
 

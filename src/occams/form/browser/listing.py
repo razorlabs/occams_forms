@@ -7,11 +7,14 @@ from zope.component import getUtility
 import zope.schema
 import z3c.form.button
 import z3c.form.field
+import z3c.form.validator
+from z3c.saconfig.interfaces import IScopedSession
 from z3c.saconfig import named_scoped_session
 from occams.form import MessageFactory as _
 from occams.form.interfaces import IFormSummary
 from occams.form.interfaces import IFormSummaryGenerator
 from occams.form.interfaces import IEditableForm
+from occams.form.serialize import symbolize
 from occams.datastore import model
 from z3c.form import button
 
@@ -117,7 +120,7 @@ class SummaryListingForm(crud.CrudForm):
 
     _items = None
 
-    add_schema = z3c.form.field.Fields(IEditableForm).omit('name', 'publish_date')
+    add_schema = z3c.form.field.Fields(IEditableForm).omit('publish_date')
 
     @property
     def label(self):
@@ -131,7 +134,7 @@ class SummaryListingForm(crud.CrudForm):
         Session = named_scoped_session(self.context.session)
 
         newSchema = model.Schema(
-                name=camelize(data['title']),
+                name=data['name'],
                 title=unicode(data['title']),
                 state='draft'
                 )
@@ -183,3 +186,34 @@ class SummaryListingForm(crud.CrudForm):
 
 
 Listing = layout.wrap_form(SummaryListingForm)
+
+
+
+class FormNameValidator(z3c.form.validator.SimpleFieldValidator):
+    """
+    Form name validation
+    """
+
+    def validate(self, value):
+        super(FormNameValidator, self).validate(value)
+
+        if isinstance(self.view, crud.AddForm):
+            repository = self.view.context.context
+        else:
+            repository = self.view.context.context.context
+
+        session = IScopedSession(repository)
+
+        if value != symbolize(value):
+            raise zope.interface.Invalid(_(u'Invalid name'))
+
+        exists = session.query(model.Schema).filter_by(name=value).count() > 0
+
+        if exists:
+            raise zope.interface.Invalid(_(u'Form name already in use'))
+
+
+z3c.form.validator.WidgetValidatorDiscriminators(
+    validator=FormNameValidator,
+    field=IEditableForm['name'],
+)
