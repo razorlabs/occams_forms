@@ -17,10 +17,12 @@ import z3c.form.form
 import z3c.form.button
 import z3c.form.field
 import z3c.form.group
+import z3c.form.util
 from z3c.form.interfaces import HIDDEN_MODE
 from  z3c.form.browser.text import TextFieldWidget
 import z3c.form.validator
 from sqlalchemy.orm.session import Session as sqlalchemysession
+from z3c.saconfig.interfaces import IScopedSession
 from z3c.saconfig import named_scoped_session
 import datetime
 from zope.security import checkPermission
@@ -45,7 +47,7 @@ from occams.form.serialize import camelize
 from occams.form.serialize import symbolize
 from occams.form.browser.preview import DisabledMixin
 from occams.datastore import model
-from sqlalchemy.orm import object_session
+from sqlalchemy.orm import object_session, aliased
 
 # Helper Methods
 def applyChoiceChanges(field, choiceData):
@@ -802,6 +804,30 @@ class VariableNameValidator(z3c.form.validator.SimpleFieldValidator):
         names = get_scalar_fields(schemaData)
         if value in names:
             raise zope.interface.Invalid(_(u'Variable name already exists in this form'))
+
+        repo = closest(self.context, IRepository)
+        session = IScopedSession(repo)
+        schema_name = closest(self.context, ISchemaContext).data['name']
+        ChildAttribute = aliased(model.Attribute)
+
+        query = (
+            session.query(model.Attribute.name.label('name'), model.Attribute.type.label('type'))
+            .join(model.Attribute.schema)
+            .filter(model.Schema.name == schema_name)
+            .filter(model.Schema.state == 'published')
+            .filter(model.Attribute.name == value)
+            .union(
+                session.query(ChildAttribute.name, ChildAttribute.type)
+                .join(model.Attribute,
+                      model.Attribute.object_schema_id == ChildAttribute.schema_id)
+                .join(model.Attribute.schema)
+                .filter(model.Schema.name == schema_name)
+                .filter(model.Schema.state == 'published')
+                .filter(ChildAttribute.name == value)))
+
+        for name, type in query:
+            if type != self.view.getType():
+                raise zope.interface.Invalid('Cannot change variable type accross versions')
 
 
 
