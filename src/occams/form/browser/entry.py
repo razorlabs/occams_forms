@@ -114,7 +114,10 @@ class DataForm(object):
                 groups.append(fieldset)
             else:
                 zField = z3c.form.field.Field(IField(field))
+                if field.type == 'blob' and self.getContent().get(field.name):
+                    zField.field.description = u'<p><strong>Contains uploaded file</strong></p>'
                 fields += z3c.form.field.Fields(zField, prefix=prefix)
+
             groups.extend(self.getPostGroups())
         return (fields, groups)
 
