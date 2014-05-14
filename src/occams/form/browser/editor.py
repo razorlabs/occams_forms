@@ -844,22 +844,13 @@ class ConstraintValidator(z3c.form.validator.SimpleFieldValidator):
 
     def validate(self, value):
         super(ConstraintValidator, self).validate(value)
-        if not value:
-            return
-
-        for choice in value:
-            if not choice['value'].isdigit():
+        if value:
+            values = [c['value'] for c in value]
+            titles = [c['title'] for c in value]
+            if len(values) != len(set(values)) or len(titles) != len(set(titles)):
                 raise zope.interface.Invalid(_(
-                    u'Only numeric codes allowed'
+                    u'Only unique values and titles are allowed'
                     ))
-
-        values = [c['value'] for c in value]
-        titles = [c['title'] for c in value]
-
-        if len(values) != len(set(values)) or len(titles) != len(set(titles)):
-            raise zope.interface.Invalid(_(
-                u'Only unique values and titles are allowed'
-                ))
 
 
 # Limit the contraint validator to only forms that will be dealing with
@@ -869,3 +860,5 @@ z3c.form.validator.WidgetValidatorDiscriminators(
     view=FieldFormInputHelper,
     widget=DataGridField
     )
+
+

@@ -16,11 +16,12 @@ DATA_KEY = 'occams.form'
 TEXTAREA_SIZE = 5
 
 typesVocabulary = SimpleVocabulary(terms=[
+        SimpleTerm(value=zope.schema.Bool, token='boolean', title=_(u'Boolean')),
         SimpleTerm(value=zope.schema.Decimal, token='decimal', title=_(u'Decimal')),
         SimpleTerm(value=zope.schema.Int, token='integer', title=_(u'Integer')),
         SimpleTerm(value=zope.schema.Date, token='date', title=_(u'Date')),
         SimpleTerm(value=zope.schema.Datetime, token='datetime', title=_(u'Date and Time')),
-        SimpleTerm(value=zope.schema.TextLine, token='string', title=_(u'Text / Choice')),
+        SimpleTerm(value=zope.schema.TextLine, token='string', title=_(u'Text')),
         SimpleTerm(value=zope.schema.Text, token='text', title=_(u'Paragraph')),
         SimpleTerm(value=NamedFile, token='blob', title=_(u'File')),
         SimpleTerm(value=zope.schema.Object, token='object', title=_(u'Field Set')),
@@ -143,6 +144,31 @@ class IRequireable(IOccamsFormComponent):
         )
 
 
+class IEditableChoice(IOccamsFormComponent):
+
+    title = zope.schema.TextLine(
+        title=_(u'Displayed Label'),
+        )
+
+    value = zope.interface.Attribute(_(u'The value stored for the answer choice'))
+
+
+class IEditableBooleanChoice(IEditableChoice):
+
+    value = zope.schema.Bool(
+        title=_(u'Stored Value'),
+        )
+
+
+class IEditableBooleanField(IEditableField, IRequireable):
+
+    choices = zope.schema.List(
+        title=_(u'Configure True/False Labels'),
+        value_type=DictRow(schema=IEditableBooleanChoice),
+        required=True,
+        )
+
+
 class IEditableDateField(IEditableField, IRequireable):
 
     pass
@@ -153,35 +179,58 @@ class IEditableDateTimeField(IEditableField, IRequireable):
     pass
 
 
+class IEditableIntegerChoice(IEditableChoice):
+
+    value = zope.schema.Int(
+        title=_(u'Stored Value'),
+        )
+
+
 class IEditableIntegerField(IEditableField, IRequireable):
 
-    pass
+    choices = zope.schema.List(
+        title=_(u'Value Constraints'),
+        description=_(
+            u'If you want the field to be limited to a subset of possible values, '
+            u'please enter them below. Leave blank otherwise.'),
+        value_type=DictRow(schema=IEditableIntegerChoice),
+        required=False,
+        )
+
+
+class IEditableDecimalChoice(IEditableChoice):
+
+    value = zope.schema.Decimal(
+        title=_(u'Stored Value'),
+        )
 
 
 class IEditableDecimalField(IEditableField, IRequireable):
 
-    pass
-
-
-class IEditableStringChoice(IOccamsFormComponent):
-
-    value = zope.schema.TextLine(
-        title=_(u'Code'),
+    choices = zope.schema.List(
+        title=_(u'Value Constraints'),
+        description=_(
+            u'If you want the field to be limited to a subset of possible values, '
+            u'please enter them below. Leave blank otherwise.'),
+        value_type=DictRow(schema=IEditableDecimalChoice),
+        required=False,
         )
 
-    title = zope.schema.TextLine(
-        title=_(u'Label'),
+
+class IEditableStringChoice(IEditableChoice):
+
+    value = zope.schema.TextLine(
+        title=_(u'Stored Value'),
         )
 
 
 class IEditableStringField(IEditableField, IRequireable, ICollectable):
 
     choices = zope.schema.List(
-        title=_(u'Answer Choices'),
+        title=_(u'Value Constraints'),
         description=_(
-            u'If you want the field to be limited to a set of possible values, '
-            u'please enter them below. Leave blank otherwise. Only '
-            u'numeric codes allowed.'),
+            u'If you want the field to be limited to a subset of possible values, '
+            u'please enter them below. Leave blank otherwise.'),
         value_type=DictRow(schema=IEditableStringChoice),
         required=False,
         )
@@ -203,6 +252,7 @@ class IEditableObjectField(IEditableField):
 
 
 typeInputSchemaMap = dict(
+    boolean=IEditableBooleanField,
     date=IEditableDateField,
     datetime=IEditableDateTimeField,
     decimal=IEditableDecimalField,
