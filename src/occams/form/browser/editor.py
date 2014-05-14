@@ -773,6 +773,9 @@ class VariableNameValidator(z3c.form.validator.SimpleFieldValidator):
         if value != symbolize(value):
             raise zope.interface.Invalid(_(u'Not a valid variable name'))
 
+        # Check proper Python variable name
+        if len(value) > 20:
+            raise zope.interface.Invalid(_(u'Variable names may only be 20 characters long'))
 
         if value in reservedWords:
             raise zope.interface.Invalid(_(u'Can\'t use reserved programming word'))
@@ -851,6 +854,10 @@ class ConstraintValidator(z3c.form.validator.SimpleFieldValidator):
             if not choice['value'].isdigit():
                 raise zope.interface.Invalid(_(
                     u'Only numeric codes allowed'
+                    ))
+            if len(choice['value']) > 8:
+                 raise zope.interface.Invalid(_(
+                    u'Codes may only be eight (8) characters long'
                     ))
 
         values = [c['value'] for c in value]
