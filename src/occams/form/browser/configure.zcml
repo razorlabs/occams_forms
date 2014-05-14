@@ -73,13 +73,6 @@
 
   <browser:page
       for="occams.form.interfaces.ISchemaContext"
-      name="codebook"
-      class=".preview.CodebookView"
-      permission="occams.form.ViewForm"
-      />
-
-  <browser:page
-      for="occams.form.interfaces.ISchemaContext"
       name="edit"
       class=".editor.FormEditFormView"
       permission="occams.form.ModifyForm"

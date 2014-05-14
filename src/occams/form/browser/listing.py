@@ -23,8 +23,8 @@ from zope.security import checkPermission
 
 from occams.form.serialize import camelize
 
-additionalControls = [('codebook', _(u'Codebook')), ('view', _(u'View')), ('edit', _(u'Edit')), ]
-links = dict(codebook='@@codebook', view='@@view', edit='@@edit',)
+additionalControls = [('view', _(u'View')), ('edit', _(u'Edit')), ]
+links = dict(view='@@view', edit='@@edit',)
 
 class ListingEditSubForm(crud.EditSubForm):
 
@@ -175,14 +175,10 @@ class SummaryListingForm(crud.CrudForm):
         """
         Renders a link to the form view
         """
-        if item.publish_date:
-            if field == 'view':
-                return os.path.join(self.context.absolute_url(), item.name + '-' + item.publish_date.isoformat(), links[field])
-            elif field == 'codebook':
-                return os.path.join(self.context.absolute_url(), item.name + '-' + item.publish_date.isoformat(), links[field])
+        if field == 'view' and item.publish_date:
+        # if field in links:
+            return os.path.join(self.context.absolute_url(), item.name + '-' + item.publish_date.isoformat(), links[field])
         elif field == 'view':
-            return os.path.join(self.context.absolute_url(), str(item.id), links[field])
-        elif field == 'codebook':
             return os.path.join(self.context.absolute_url(), str(item.id), links[field])
         elif field == 'edit' and item.is_editable and checkPermission('occams.form.ModifyForm', self.context):
             return os.path.join(self.context.absolute_url(), str(item.id), links[field])

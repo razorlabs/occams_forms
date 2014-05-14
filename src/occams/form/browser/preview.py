@@ -9,8 +9,6 @@ from z3c.saconfig import named_scoped_session
 from zope.security import checkPermission
 from AccessControl import getSecurityManager
 from Products.statusmessages.interfaces import IStatusMessage
-from Products.Five import BrowserView
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 from occams.datastore import model
 
@@ -109,14 +107,3 @@ class FormPreviewForm(DisabledMixin, Form):
             repository = closest(self.context, IRepository)
             self.request.response.redirect(repository.absolute_url())
             IStatusMessage(self.request).add(self.successMessage)
-
-
-class CodebookView(BrowserView):
-
-    index = ViewPageTemplateFile('preview_templates/codebook.pt')
-
-    def render(self):
-        return self.index()
-
-    def __call__(self):
-        return self.render()
