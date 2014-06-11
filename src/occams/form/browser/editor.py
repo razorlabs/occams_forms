@@ -773,6 +773,9 @@ class VariableNameValidator(z3c.form.validator.SimpleFieldValidator):
         if value != symbolize(value):
             raise zope.interface.Invalid(_(u'Not a valid variable name'))
 
+        # Check proper Python variable name
+        if len(value) > 20:
+            raise zope.interface.Invalid(_(u'Variable names may only be 20 characters long'))
 
         if value in reservedWords:
             raise zope.interface.Invalid(_(u'Can\'t use reserved programming word'))
@@ -844,13 +847,26 @@ class ConstraintValidator(z3c.form.validator.SimpleFieldValidator):
 
     def validate(self, value):
         super(ConstraintValidator, self).validate(value)
-        if value:
-            values = [c['value'] for c in value]
-            titles = [c['title'] for c in value]
-            if len(values) != len(set(values)) or len(titles) != len(set(titles)):
+        if not value:
+            return
+
+        for choice in value:
+            if not choice['value'].isdigit():
                 raise zope.interface.Invalid(_(
-                    u'Only unique values and titles are allowed'
+                    u'Only numeric codes allowed'
                     ))
+            if len(choice['value']) > 8:
+                 raise zope.interface.Invalid(_(
+                    u'Codes may only be eight (8) characters long'
+                    ))
+
+        values = [c['value'] for c in value]
+        titles = [c['title'] for c in value]
+
+        if len(values) != len(set(values)) or len(titles) != len(set(titles)):
+            raise zope.interface.Invalid(_(
+                u'Only unique values and titles are allowed'
+                ))
 
 
 # Limit the contraint validator to only forms that will be dealing with
@@ -860,5 +876,3 @@ z3c.form.validator.WidgetValidatorDiscriminators(
     view=FieldFormInputHelper,
     widget=DataGridField
     )
-
-
