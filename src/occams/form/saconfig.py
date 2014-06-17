@@ -90,9 +90,12 @@ def handle_login(event):
                 user = session.query(model.User).filter_by(key=principal).one()
             except orm.exc.NoResultFound:
                 # no user found, register into datastore accountability table
-                user = model.User(key=principal)
-                session.add(user)
-                session.flush()
+                # insert outside of the transaction to make the action immediate
+                from occams.datastore.model import DataStoreModel
+                from sqlalchemy import insert
+                user_table = DataStoreModel.metadata.tables['user']
+                with session.bind.connect() as conn:
+                    conn.execute(insert(user_table, values=dict(key=principal)))
             except (sa.exc.ProgrammingError, sa.exc.OperationalError) as e:
                 # no occams repository, ignore
                 pass
