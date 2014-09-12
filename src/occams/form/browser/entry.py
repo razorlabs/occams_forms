@@ -483,10 +483,10 @@ class UberEditForm(z3c.form.group.GroupForm, UberForm, z3c.form.form.EditForm):
             formNames.add(form)
         for name in formNames:
             self.context.data.setdefault(name, {})
-        for name in super(UberEditForm, self).applyChanges(data).values():
-            name = name[0]
-            (form, dot, field) = name.partition('.')
-            changedForms.add(form)
+        for names in super(UberEditForm, self).applyChanges(data).values():
+            for name in names:
+                (form, dot, field) = name.partition('.')
+                changedForms.add(form)
         changedData = self.getContent()
         for entity in self.context.item.entities:
             if entity.schema.name in changedForms:
@@ -499,11 +499,5 @@ class UberEditForm(z3c.form.group.GroupForm, UberForm, z3c.form.form.EditForm):
                 schema = self.getSchema(schema_name, session)
                 newEntity = self.addEntry(schema, changedData[schema_name])
                 self.context.item.entities.add(newEntity)
-                # newchanges = self.applyEntityChanges(newEntity, changedData[schema_name])
-
                 session.flush()
         return changes
-
-
-
-
