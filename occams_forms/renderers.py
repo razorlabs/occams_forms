@@ -208,6 +208,11 @@ def make_field(attribute):
 
         kw['choices'] = [(c.name, label.format(choice=c)) for c in choices]
 
+        # Displays a blank option for long single select to force user to
+        # select a value
+        if attribute_widget == 'select' and not attribute.is_collection:
+            kw['choices'].insert(0, (u'', u''))
+
         # If true, parse as string, else return none
         kw['coerce'] = lambda v: six.binary_type(v) if v else None
 
