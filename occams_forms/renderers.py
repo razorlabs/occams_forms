@@ -201,10 +201,10 @@ def make_field(attribute):
 
         if len(choices) > 10:
             attribute_widget = 'select'
-            label = '{choice.title} - [ {choice.name} ]'
+            label = u'{choice.title} - [ {choice.name} ]'
         else:
             attribute_widget = None
-            label = '{choice.title}'
+            label = u'{choice.title}'
 
         kw['choices'] = [(c.name, label.format(choice=c)) for c in choices]
 
