@@ -10,9 +10,6 @@ def includeme(config):
     """
     here = os.path.dirname(os.path.realpath(__file__))
 
-    env = config.get_webassets_env()
-    env.append_path(os.path.join(here, 'static'), '/forms/static')
-
     # "resolves" the path relative to this package
     def rel(path):
         return os.path.join(here, 'static', path)

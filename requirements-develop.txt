@@ -15,7 +15,7 @@ pyramid_debugtoolbar
 pytest
 pytest-cov
 pytest-factoryboy
-factory_boy
+factory_boy>=2.8.1
 Faker
 WebTest
 beautifulsoup4
