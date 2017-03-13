@@ -90,7 +90,7 @@ def preview(context, request):
         upload_path = tempfile.mkdtemp()
         entity = datastore.Entity(schema=context)
         try:
-            apply_data(db_session, entity, form.patch_data, upload_path)
+            apply_data(db_session, entity, form.data, upload_path)
         finally:
             shutil.rmtree(upload_path)
 

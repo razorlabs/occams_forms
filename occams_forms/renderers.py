@@ -511,6 +511,9 @@ def apply_data(session, entity, data, upload_path):
     """
 
     assert upload_path is not None, u'Destination path is required'
+    assert os.path.isdir(upload_path), 'Destination path does not exist'
+
+    upload_path = os.path.abspath(upload_path)
 
     previous_state = entity.state and entity.state.name
 
@@ -608,14 +611,14 @@ def apply_data(session, entity, data, upload_path):
                 with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
                     mime_type = m.id_filename(dest_path)
 
-                value = datastore.BlobInfo(original_name, dest_path, mime_type)
+                value = datastore.BlobInfo(original_name, generated_path, mime_type)
 
             else:
 
                 value = None
 
             if isinstance(entity[attribute.name], datastore.BlobInfo):
-                os.unlink(entity[attribute.name].path)
+                os.unlink(os.path.join(upload_path, entity[attribute.name].path))
 
         else:
             value = parent[attribute.name]
